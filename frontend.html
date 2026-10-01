@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppVault Pro | Ultimate App & Tool Installer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl text-xl font-bold shadow-lg shadow-indigo-600/30">⚡</div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        AppVault Pro
+                    </h1>
+                    <p class="text-xs text-slate-400">One-stop shop for Windows software, VPNs, dev tools & Android APKs.</p>
+                </div>
+            </div>
+
+            <!-- Global Search & Platform Switcher -->
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search apps, VPNs, tools..." class="bg-slate-950 text-xs px-3 py-2 rounded-xl border border-slate-800 focus:outline-none focus:border-indigo-500 text-slate-200 w-full sm:w-64 transition">
+                
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 w-full sm:w-auto justify-center">
+                    <button id="btn-win" onclick="setPlatform('windows')" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow">
+                        🪟 Windows Apps
+                    </button>
+                    <button id="btn-apk" onclick="setPlatform('android')" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">
+                        🤖 Android APKs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+        
+        <!-- Left 2 Columns: Category Bar & Apps Grid -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Category Filter Bar -->
+            <div class="flex flex-wrap gap-2 text-xs font-mono overflow-x-auto pb-1" id="category-filters">
+                <!-- Dynamically Populated -->
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex justify-between items-center text-xs text-slate-500 font-mono border-b border-slate-800 pb-2">
+                <span id="catalog-count">Showing 0 software tools</span>
+                <span id="license-legend">🟢 Open Source | 🔵 Freeware | 🟣 Freemium/Paid</span>
+            </div>
+
+            <!-- Apps Grid -->
+            <div id="apps-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+
+        <!-- Right Column: Installer Generator Panel -->
+        <div class="space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sticky top-24 shadow-2xl">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-sm font-bold text-indigo-400 font-mono uppercase tracking-wider flex items-center gap-2">
+                        <span>📦</span> Batch Bundle Queue (<span id="selected-count">0</span>)
+                    </h2>
+                    <button onclick="clearSelection()" class="text-xs text-slate-500 hover:text-red-400 transition">Clear All</button>
+                </div>
+
+                <!-- Selected List -->
+                <div id="selected-list" class="space-y-2 mb-6 max-h-56 overflow-y-auto pr-1 text-xs text-slate-400">
+                    <p class="text-slate-600 italic">No software selected. Click any tool card on the left to add it to your batch installer.</p>
+                </div>
+
+                <!-- Generated Script Output -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-slate-300">Auto-Installer Command</label>
+                        <button onclick="copyScript()" class="text-[11px] bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded transition">
+                            📋 Copy Terminal Script
+                        </button>
+                    </div>
+                    <pre id="script-output" class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 overflow-x-auto whitespace-pre-wrap h-28"># Select software to generate official Winget / ADB install scripts</pre>
+                </div>
+
+                <!-- Direct Links Action -->
+                <div class="mt-4 pt-4 border-t border-slate-800 space-y-2">
+                    <button onclick="downloadAllDirect()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                        🚀 Open Official Download Tabs
+                    </button>
+                    <p class="text-[10px] text-slate-500 text-center">Winget scripts download official binaries directly from vendors or Microsoft Store.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-600 font-mono">
+        AppVault Pro • Curated directly from Winget Repository, F-Droid, and Official Vendor Releases
+    </footer>
+
+    <script>
+        // Massive Database of Windows & Android Software
+        const appDatabase = {
+            windows: [
+                // VPN & Privacy
+                { id: "win-protonvpn", name: "Proton VPN", cat: "VPN & Privacy", type: "Freemium", desc: "High-speed Swiss VPN with strong privacy & free tier.", winget: "Proton.ProtonVPN", url: "https://protonvpn.com/" },
+                { id: "win-mullvad", name: "Mullvad VPN", cat: "VPN & Privacy", type: "Paid", desc: "Privacy-first VPN requiring zero personal info or email.", winget: "MullvadVPN.MullvadVPN", url: "https://mullvad.net/" },
+                { id: "win-wireguard", name: "WireGuard", cat: "VPN & Privacy", type: "OpenSource", desc: "Extremely fast, modern, secure VPN protocol client.", winget: "WireGuard.WireGuard", url: "https://www.wireguard.com/" },
+                { id: "win-tailscale", name: "Tailscale", cat: "VPN & Privacy", type: "Freemium", desc: "Zero-config mesh VPN based on WireGuard for personal devices.", winget: "Tailscale.Tailscale", url: "https://tailscale.com/" },
+                { id: "win-tor", name: "Tor Browser", cat: "VPN & Privacy", type: "OpenSource", desc: "Browse anonymously through the multi-hop onion network.", winget: "TorProject.TorBrowser", url: "https://www.torproject.org/" },
+
+                // System Utilities
+                { id: "win-7zip", name: "7-Zip", cat: "Utilities", type: "OpenSource", desc: "High-compression file archiver for ZIP, RAR, 7z.", winget: "7zip.7zip", url: "https://www.7-zip.org/" },
+                { id: "win-powertoys", name: "Microsoft PowerToys", cat: "Utilities", type: "OpenSource", desc: "FancyZones, Color Picker, PowerToys Run, File Locksmith.", winget: "Microsoft.PowerToys", url: "https://github.com/microsoft/PowerToys" },
+                { id: "win-rufus", name: "Rufus", cat: "Utilities", type: "OpenSource", desc: "Create bootable USB drives for Windows and Linux ISOs.", winget: "Rufus.Rufus", url: "https://rufus.ie/" },
+                { id: "win-everything", name: "Voidtools Everything", cat: "Utilities", type: "Freeware", desc: "Locate files and folders by name instantly on Windows.", winget: "voidtools.Everything", url: "https://www.voidtools.com/" },
+                { id: "win-process-hacker", name: "System Informer", cat: "Utilities", type: "OpenSource", desc: "Powerful multi-purpose task manager and system monitor.", winget: "WinsidersSeminars2016.SystemInformer", url: "https://systeminformer.sourceforge.io/" },
+                { id: "win-windirstat", name: "WizTree", cat: "Utilities", type: "Freeware", desc: "Blazing fast disk space analyzer to clean up hard drives.", winget: "AntibodySoftware.WizTree", url: "https://diskanalyzer.com/" },
+
+                // Web Browsers
+                { id: "win-brave", name: "Brave Browser", cat: "Browsers", type: "OpenSource", desc: "Fast browser with built-in ad and tracker blocking.", winget: "Brave.Brave", url: "https://brave.com/" },
+                { id: "win-firefox", name: "Mozilla Firefox", cat: "Browsers", type: "OpenSource", desc: "Privacy-conscious independent web browser.", winget: "Mozilla.Firefox", url: "https://www.mozilla.org/firefox/" },
+                { id: "win-chrome", name: "Google Chrome", cat: "Browsers", type: "Freeware", desc: "Google's popular web browser with deep cross-device sync.", winget: "Google.Chrome", url: "https://www.google.com/chrome/" },
+                { id: "win-zen", name: "Zen Browser", cat: "Browsers", type: "OpenSource", desc: "Beautiful, privacy-first Firefox-based browser with workspaces.", winget: "Zen-Team.Zen-Browser", url: "https://zen-browser.app/" },
+
+                // Developer Tools
+                { id: "win-vscode", name: "VS Code", cat: "Developer", type: "OpenSource", desc: "Code editor redefined for web, cloud, and app dev.", winget: "Microsoft.VisualStudioCode", url: "https://code.visualstudio.com/" },
+                { id: "win-git", name: "Git for Windows", cat: "Developer", type: "OpenSource", desc: "Distributed version control system with Git Bash.", winget: "Git.Git", url: "https://git-scm.com/" },
+                { id: "win-docker", name: "Docker Desktop", cat: "Developer", type: "Freemium", desc: "Containerization platform to build and run microservices.", winget: "Docker.DockerDesktop", url: "https://www.docker.com/" },
+                { id: "win-postman", name: "Postman", cat: "Developer", type: "Freemium", desc: "API development, testing, and documentation environment.", winget: "Postman.Postman", url: "https://www.postman.com/" },
+                { id: "win-nodejs", name: "Node.js (LTS)", cat: "Developer", type: "OpenSource", desc: "JavaScript runtime built on Chrome V8 engine.", winget: "OpenJS.NodeJS.LTS", url: "https://nodejs.org/" },
+
+                // Media & Audio
+                { id: "win-vlc", name: "VLC Media Player", cat: "Media", type: "OpenSource", desc: "Universal media player that handles any codec natively.", winget: "VideoLAN.VLC", url: "https://www.videolan.org/vlc/" },
+                { id: "win-obs", name: "OBS Studio", cat: "Media", type: "OpenSource", desc: "Free software for video recording and live streaming.", winget: "OBSProject.OBSStudio", url: "https://obsproject.com/" },
+                { id: "win-spotify", name: "Spotify", cat: "Media", type: "Freemium", desc: "Digital music, podcast, and audio streaming platform.", winget: "Spotify.Spotify", url: "https://www.spotify.com/" },
+                { id: "win-handbrake", name: "HandBrake", cat: "Media", type: "OpenSource", desc: "Convert video from nearly any format to modern codecs.", winget: "HandBrake.HandBrake", url: "https://handbrake.fr/" },
+                { id: "win-audacity", name: "Audacity", cat: "Media", type: "OpenSource", desc: "Multi-track audio recorder and editor.", winget: "Audacity.Audacity", url: "https://www.audacityteam.org/" },
+
+                // Gaming & Social
+                { id: "win-steam", name: "Steam", cat: "Gaming & Social", type: "Freeware", desc: "Ultimate PC gaming storefront and multiplayer platform.", winget: "Valve.Steam", url: "https://store.steampowered.com/" },
+                { id: "win-epic", name: "Epic Games Launcher", cat: "Gaming & Social", type: "Freeware", desc: "PC game store featuring weekly free game drops.", winget: "EpicGames.EpicGamesLauncher", url: "https://store.epicgames.com/" },
+                { id: "win-discord", name: "Discord", cat: "Gaming & Social", type: "Freemium", desc: "Voice, video, and text communication for gamers and communities.", winget: "Discord.Discord", url: "https://discord.com/" },
+                { id: "win-telegram", name: "Telegram Desktop", cat: "Gaming & Social", type: "OpenSource", desc: "Fast, encrypted desktop messaging client.", winget: "Telegram.TelegramDesktop", url: "https://desktop.telegram.org/" },
+
+                // Customization & Productivity
+                { id: "win-rainmeter", name: "Rainmeter", cat: "Customization", type: "OpenSource", desc: "Desktop customization tool for dynamic widgets and skins.", winget: "Rainmeter.Rainmeter", url: "https://www.rainmeter.net/" },
+                { id: "win-lively", name: "Lively Wallpaper", cat: "Customization", type: "OpenSource", desc: "Animate your desktop with interactive videos & GIFs.", winget: "rocksdanister.LivelyWallpaper", url: "https://rocksdanister.github.io/lively/" },
+                { id: "win-notion", name: "Notion", cat: "Productivity", type: "Freemium", desc: "All-in-one workspace for notes, docs, and task boards.", winget: "Notion.Notion", url: "https://www.notion.so/" },
+                { id: "win-obsidian", name: "Obsidian", cat: "Productivity", type: "Freeware", desc: "Markdown-based knowledge base that operates on local files.", winget: "Obsidian.Obsidian", url: "https://obsidian.md/" }
+            ],
+            android: [
+                { id: "apk-proton", name: "Proton VPN", cat: "VPN & Privacy", type: "Freemium", package: "ch.protonvpn.android", desc: "Encrypted Swiss VPN with no logs.", url: "https://protonvpn.com/download" },
+                { id: "apk-mullvad", name: "Mullvad VPN", cat: "VPN & Privacy", type: "Paid", package: "net.mullvad.mullvadvpn", desc: "Anonymous VPN requiring no account creation.", url: "https://mullvad.net/download" },
+                { id: "apk-vlc", name: "VLC for Android", cat: "Media", type: "OpenSource", package: "org.videolan.vlc", desc: "Plays all video & audio files directly on mobile.", url: "https://play.google.com/store/apps/details?id=org.videolan.vlc" },
+                { id: "apk-fdroid", name: "F-Droid", cat: "Utilities", type: "OpenSource", package: "org.fdroid.fdroid", desc: "Independent app store for free & open source Android apps.", url: "https://f-droid.org/" },
+                { id: "apk-signal", name: "Signal", cat: "Social", type: "OpenSource", package: "org.thoughtcrime.securesms", desc: "State-of-the-art end-to-end encrypted messenger.", url: "https://signal.org/android/apk/" },
+                { id: "apk-newpipe", name: "NewPipe", cat: "Media", type: "OpenSource", package: "org.schabi.newpipe", desc: "Ad-free YouTube client with background play.", url: "https://newpipe.net/" },
+                { id: "apk-bitwarden", name: "Bitwarden", cat: "Utilities", type: "OpenSource", package: "com.x8bit.bitwarden", desc: "Secure cross-platform password manager.", url: "https://bitwarden.com/download/" },
+                { id: "apk-termux", name: "Termux", cat: "Developer", type: "OpenSource", package: "com.termux", desc: "Terminal emulator and Linux environment framework.", url: "https://f-droid.org/packages/com.termux/" },
+                { id: "apk-revanced", name: "ReVanced Manager", cat: "Utilities", type: "OpenSource", package: "app.revanced.manager.flutter", desc: "Patcher for YouTube, Spotify, and social apps.", url: "https://revanced.app/" }
+            ]
+        };
+
+        let currentPlatform = "windows";
+        let activeCategory = "All";
+        let searchQuery = "";
+        let selectedApps = new Set();
+
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            selectedApps.clear();
+            activeCategory = "All";
+            searchQuery = "";
+            document.getElementById('search-input').value = "";
+
+            document.getElementById('btn-win').className = platform === 'windows' 
+                ? "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow"
+                : "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+            
+            document.getElementById('btn-apk').className = platform === 'android' 
+                ? "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow"
+                : "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+
+            renderCategories();
+            renderApps();
+            updatePanel();
+        }
+
+        function renderCategories() {
+            const apps = appDatabase[currentPlatform];
+            const categories = ["All", ...new Set(apps.map(a => a.cat))];
+            
+            const filterContainer = document.getElementById('category-filters');
+            filterContainer.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')" class="px-3 py-1 rounded-lg border ${activeCategory === cat ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'} transition whitespace-nowrap">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategories();
+            renderApps();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase();
+            renderApps();
+        }
+
+        function getLicenseBadge(type) {
+            if (type === "OpenSource") return `<span class="text-[9px] text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono">🟢 Open Source</span>`;
+            if (type === "Freeware") return `<span class="text-[9px] text-cyan-400 border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 rounded font-mono">🔵 Freeware</span>`;
+            return `<span class="text-[9px] text-purple-400 border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 rounded font-mono">🟣 ${type}</span>`;
+        }
+
+        function renderApps() {
+            const grid = document.getElementById('apps-grid');
+            const apps = appDatabase[currentPlatform].filter(a => {
+                const matchesCat = activeCategory === "All" || a.cat === activeCategory;
+                const matchesSearch = a.name.toLowerCase().includes(searchQuery) || a.desc.toLowerCase().includes(searchQuery) || a.cat.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            document.getElementById('catalog-count').innerText = `Showing ${apps.length} tools in catalog`;
+
+            if (apps.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-12 text-slate-500 italic text-xs">No software tools match your search query. Try resetting filters.</div>`;
+                return;
+            }
+
+            grid.innerHTML = apps.map(app => {
+                const isSelected = selectedApps.has(app.id);
+                return `
+                    <div onclick="toggleApp('${app.id}')" class="bg-slate-900 border ${isSelected ? 'border-indigo-500 ring-1 ring-indigo-500 bg-slate-900/90' : 'border-slate-800 hover:border-slate-700'} rounded-xl p-4 cursor-pointer transition flex flex-col justify-between group">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <h3 class="font-bold text-sm text-slate-100 group-hover:text-indigo-400 transition">${app.name}</h3>
+                                ${getLicenseBadge(app.type)}
+                            </div>
+                            <p class="text-xs text-slate-400 line-clamp-2 mb-3">${app.desc}</p>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-800/60 text-[11px] font-mono">
+                            <span class="text-slate-500">${app.cat}</span>
+                            <span class="${isSelected ? 'text-indigo-400 font-bold' : 'text-slate-500'}">${isSelected ? '✓ Added' : '+ Select'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleApp(appId) {
+            if (selectedApps.has(appId)) selectedApps.delete(appId);
+            else selectedApps.add(appId);
+            
+            renderApps();
+            updatePanel();
+        }
+
+        function clearSelection() {
+            selectedApps.clear();
+            renderApps();
+            updatePanel();
+        }
+
+        function updatePanel() {
+            const selectedList = document.getElementById('selected-list');
+            const scriptOutput = document.getElementById('script-output');
+            const selectedCount = document.getElementById('selected-count');
+            
+            selectedCount.innerText = selectedApps.size;
+
+            if (selectedApps.size === 0) {
+                selectedList.innerHTML = `<p class="text-slate-600 italic">No software selected. Click any tool card on the left to add it to your batch installer.</p>`;
+                scriptOutput.innerText = `# Select software to generate official ${currentPlatform === 'windows' ? 'Winget' : 'ADB'} install scripts`;
+                return;
+            }
+
+            const allApps = appDatabase[currentPlatform];
+            const activeSelections = allApps.filter(a => selectedApps.has(a.id));
+
+            selectedList.innerHTML = activeSelections.map(a => `
+                <div class="flex justify-between items-center bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <span class="text-slate-200 font-medium">${a.name}</span>
+                    <button onclick="toggleApp('${a.id}')" class="text-slate-500 hover:text-red-400">✕</button>
+                </div>
+            `).join('');
+
+            if (currentPlatform === 'windows') {
+                scriptOutput.innerText = `winget install ${activeSelections.map(a => a.winget).join(' ')} --accept-package-agreements --accept-source-agreements`;
+            } else {
+                scriptOutput.innerText = `# Open direct download pages for APK installation:\n` + activeSelections.map(a => `# ${a.name}\nstart ${a.url}`).join('\n');
+            }
+        }
+
+        function copyScript() {
+            const scriptText = document.getElementById('script-output').innerText;
+            navigator.clipboard.writeText(scriptText);
+            alert("📋 Installation command copied to clipboard!");
+        }
+
+        function downloadAllDirect() {
+            const allApps = appDatabase[currentPlatform];
+            const activeSelections = allApps.filter(a => selectedApps.has(a.id));
+            
+            if (activeSelections.length === 0) {
+                alert("Please select at least one software tool first!");
+                return;
+            }
+
+            activeSelections.forEach(app => {
+                window.open(app.url, '_blank');
+            });
+        }
+
+        window.onload = () => {
+            renderCategories();
+            renderApps();
+        };
+    </script>
+</body>
+</html>
